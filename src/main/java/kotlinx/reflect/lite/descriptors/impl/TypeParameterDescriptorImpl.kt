@@ -25,7 +25,7 @@ internal class TypeParameterDescriptorImpl(
         get() = kmTypeParam.name
 
     override val isReified: Boolean
-        get() = Flag.TypeParameter.IS_REIFIED(kmTypeParam.flags)
+        get() = kmTypeParam.isReified
 
     override val upperBounds: List<KotlinType>
         get() = kmTypeParam.upperBounds.map { it.toKotlinType(module, typeParameterTable) }

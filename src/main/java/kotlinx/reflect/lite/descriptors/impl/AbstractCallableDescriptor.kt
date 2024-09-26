@@ -10,17 +10,14 @@ import kotlinx.reflect.lite.descriptors.*
 import kotlinx.reflect.lite.descriptors.CallableDescriptor
 
 internal interface AbstractCallableDescriptor : CallableDescriptor {
-    val flags: Flags
-
-    override val visibility: KVisibility? // todo add DescriptorVisibility maybe for consistency
-        get() = flags.toVisibility()
-
     val typeParameterTable: TypeParameterTable
+}
 
-    override val isFinal: Boolean
-        get() = Flag.Common.IS_FINAL(flags)
-    override val isOpen: Boolean
-        get() = Flag.Common.IS_OPEN(flags)
-    override val isAbstract: Boolean
-        get() = Flag.Common.IS_ABSTRACT(flags)
+internal fun Visibility.toKVisibility(): KVisibility? = when (this) {
+    Visibility.INTERNAL -> KVisibility.INTERNAL
+    Visibility.PRIVATE -> KVisibility.PRIVATE
+    Visibility.PROTECTED -> KVisibility.PROTECTED
+    Visibility.PUBLIC -> KVisibility.PUBLIC
+    Visibility.PRIVATE_TO_THIS -> KVisibility.PRIVATE
+    Visibility.LOCAL -> null
 }

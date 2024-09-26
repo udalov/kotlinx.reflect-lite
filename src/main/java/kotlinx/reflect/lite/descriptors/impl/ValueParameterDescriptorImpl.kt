@@ -20,7 +20,7 @@ internal class ValueParameterDescriptorImpl(
         get() = kmValueParam.type.toKotlinType(containingDeclaration.module, containingDeclaration.typeParameterTable)
 
     override val declaresDefaultValue: Boolean
-        get() = Flag.ValueParameter.DECLARES_DEFAULT_VALUE(kmValueParam.flags)
+        get() = kmValueParam.declaresDefaultValue
 
     override val varargElementType: KotlinType?
         get() = kmValueParam.varargElementType?.toKotlinType(containingDeclaration.module, containingDeclaration.typeParameterTable)

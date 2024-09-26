@@ -111,7 +111,7 @@ internal class ClassDescriptorImpl<T : Any?>(
     }
 
     override val visibility: KVisibility? by lazy {
-        kmClass.flags.toVisibility()
+        kmClass.visibility.toKVisibility()
     }
 
     override val typeParameterTable: TypeParameterTable by lazy {
