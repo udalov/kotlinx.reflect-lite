@@ -33,13 +33,14 @@ java {
 }
 
 tasks.compileKotlin {
-    kotlinOptions {
-        freeCompilerArgs += listOf("-no-reflect")
+    compilerOptions {
+        freeCompilerArgs.addAll(listOf("-no-reflect"))
     }
 }
 
 kotlin {
     explicitApi()
+    jvmToolchain(8)
 }
 
 kover {

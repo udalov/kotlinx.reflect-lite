@@ -25,14 +25,14 @@ fun box(): String {
         f.get(a)
         return "Fail: protected property getter is accessible by default"
     } catch (e: IllegalAccessException) {
-        assertEquals("class kotlinx.reflect.lite.calls.CallerImpl\$Method cannot access a member of class tests.properties.protectedClassVar.A with modifiers \"protected final\"", e.message)
+        assertEquals("Class kotlinx.reflect.lite.calls.CallerImpl\$Method can not access a member of class tests.properties.protectedClassVar.A with modifiers \"protected final\"", e.message)
     }
 
     try {
         f.set(a, ":D")
         return "Fail: protected property setter is accessible by default"
     } catch (e: IllegalAccessException) {
-        assertEquals("class kotlinx.reflect.lite.calls.CallerImpl\$Method cannot access a member of class tests.properties.protectedClassVar.A with modifiers \"protected final\"", e.message)
+        assertEquals("Class kotlinx.reflect.lite.calls.CallerImpl\$Method can not access a member of class tests.properties.protectedClassVar.A with modifiers \"protected final\"", e.message)
     }
 
     f.isAccessible = true

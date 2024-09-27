@@ -19,7 +19,7 @@ fun box(): String {
         return p.get(K("Fail: private property should not be accessible by default"))
     }
     catch (e: IllegalAccessException) {
-        assertEquals("class kotlinx.reflect.lite.calls.CallerImpl\$FieldGetter cannot access a member of class tests.properties.callPrivatePropertyFromGetProperties.K with modifiers \"private final\"", e.message)
+        assertEquals("Class kotlinx.reflect.lite.calls.CallerImpl\$FieldGetter can not access a member of class tests.properties.callPrivatePropertyFromGetProperties.K with modifiers \"private final\"", e.message)
         // OK
     }
 
