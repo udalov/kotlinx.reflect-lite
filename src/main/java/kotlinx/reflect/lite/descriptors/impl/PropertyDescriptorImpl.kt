@@ -100,7 +100,7 @@ internal class PropertyDescriptorImpl(
     override val getter: PropertyGetterDescriptor? by lazy { PropertyGetterDescriptorImpl(this) }
 
     override val setter: PropertySetterDescriptor? by lazy {
-        if (kmProperty.hasSetter) PropertySetterDescriptorImpl(this) else null
+        if (kmProperty.setter != null) PropertySetterDescriptorImpl(this) else null
     }
 
     override val caller: Caller<*> by lazy {
@@ -220,7 +220,7 @@ internal class PropertyGetterDescriptorImpl(
 
     override val member: Method? by lazy {
         property.jvmSignature.getterSignature?.let { signature ->
-            property.container.findMethodBySignature(signature.name, signature.desc)
+            property.container.findMethodBySignature(signature.name, signature.descriptor)
         }
     }
 
@@ -267,7 +267,7 @@ internal class PropertySetterDescriptorImpl(
 
     override val member: Method? by lazy {
         property.jvmSignature.setterSignature?.let { signature ->
-            property.container.findMethodBySignature(signature.name, signature.desc)
+            property.container.findMethodBySignature(signature.name, signature.descriptor)
         }
     }
 

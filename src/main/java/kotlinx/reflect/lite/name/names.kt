@@ -6,6 +6,7 @@ package kotlinx.reflect.lite.name
 
 import kotlinx.metadata.ClassName
 import kotlinx.metadata.isLocal
+import kotlinx.metadata.isLocalClassName
 
 internal typealias Name = String
 
@@ -38,7 +39,7 @@ internal data class ClassId(val packageFqName: FqName, val relativeClassName: Fq
         FqName(className.substringBeforeLast('/', "").replace('/', '.')),
         FqName(className.substringAfterLast('/'))
     ) {
-        require(!className.isLocal) { TODO("Local class names are not yet supported here: $className") }
+        require(!className.isLocalClassName()) { TODO("Local class names are not yet supported here: $className") }
     }
 
     val shortClassName: Name

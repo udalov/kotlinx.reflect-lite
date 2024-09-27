@@ -21,7 +21,7 @@ repositories {
 dependencies {
     implementation("com.google.protobuf:protobuf-java:2.6.1")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.7.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.9.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("junit:junit:4.13")
     jmh("org.jetbrains.kotlin:kotlin-reflect:1.7.10")

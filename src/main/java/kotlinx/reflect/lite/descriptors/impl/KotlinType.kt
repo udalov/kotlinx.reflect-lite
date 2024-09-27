@@ -61,7 +61,7 @@ internal fun KmType.toKotlinType(module: ModuleDescriptor, typeParameterTable: T
                 variance?.toVariance() ?: KVariance.OUT
             )
         }.toList(),
-        Flag.Type.IS_NULLABLE(flags)
+        isNullable
     )
 }
 
