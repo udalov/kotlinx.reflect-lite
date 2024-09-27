@@ -23,8 +23,8 @@ internal class KParameterImpl(
         }
 
     // Logic from here: https://github.com/JetBrains/kotlin/blob/1f1790d60e837347d99921dd1fb4f00e6ec868d2/core/reflection.jvm/src/kotlin/reflect/jvm/internal/KParameterImpl.kt#L42
-    override val type: KType
-        get() = KTypeImpl(descriptor.type) {
+    override val type: KType by lazy {
+        KTypeImpl(descriptor.type) {
             val descriptor = descriptor
 
             if (descriptor is ReceiverParameterDescriptor &&
@@ -40,6 +40,7 @@ internal class KParameterImpl(
                 containingCallable.caller.parameterTypes[index]
             }
         }
+    }
 
     override val isOptional: Boolean
         get() = (descriptor as? ValueParameterDescriptor)?.declaresDefaultValue ?: false

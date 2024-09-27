@@ -61,23 +61,29 @@ internal class ClassDescriptorImpl<T : Any?>(
     private val kmClass: KmClass by lazy {
         val builtinClassId = RuntimeTypeMapper.getKotlinBuiltInClassId(jClass)
         if (builtinClassId != null) {
-            val packageName = builtinClassId.packageFqName
-            // kotlin.collections -> kotlin/collections/collections.kotlin_builtins
-            val resourcePath =
-                packageName.asString().replace('.', '/') + '/' + packageName.shortName() + ".kotlin_builtins"
-            val bytes = Unit::class.java.classLoader.getResourceAsStream(resourcePath)?.readBytes()
-                ?: error("No builtins metadata file found: $resourcePath")
-            val packageFragment = KotlinCommonMetadata.read(bytes)?. /* compiled code */ kmModuleFragment
-                ?: error("Incompatible metadata version: $resourcePath")
-            packageFragment.classes.find { it.name == builtinClassId.asClassName() }?.let { return@lazy it }
+            val maybe = builtInKmOrNull(builtinClassId)
+            if (maybe != null) return@lazy maybe
         }
         val header = jClass.getAnnotation(Metadata::class.java)?.let {
             Metadata(it.kind, it.metadataVersion, it.data1, it.data2, it.extraString, it.packageName, it.extraInt)
         } ?: error("@Metadata annotation was not found for ${jClass.name} ")
-        return@lazy when (val metadata =  /* compiled code */ KotlinClassMetadata.readStrict(header)) {
-            is KotlinClassMetadata.Class ->  /* compiled code */ metadata.kmClass
+        return@lazy when (val metadata = KotlinClassMetadata.readStrict(header)) {
+            is KotlinClassMetadata.Class -> metadata.kmClass
             else -> error("Can not create ClassDescriptor for metadata of type $metadata")
         }
+    }
+
+    private fun builtInKmOrNull(builtinClassId: ClassId): KmClass? {
+        val packageName = builtinClassId.packageFqName
+        // kotlin.collections -> kotlin/collections/collections.kotlin_builtins
+        val resourcePath =
+            packageName.asString().replace('.', '/') + '/' + packageName.shortName() + ".kotlin_builtins"
+        val bytes = Unit::class.java.classLoader.getResourceAsStream(resourcePath)?.readBytes()
+            ?: error("No builtins metadata file found: $resourcePath")
+        val packageFragment = KotlinCommonMetadata.read(bytes)?. /* compiled code */ kmModuleFragment
+            ?: error("Incompatible metadata version: $resourcePath")
+        val maybe = packageFragment.classes.find { it.name == builtinClassId.asClassName() }
+        return maybe
     }
 
     override val name: Name by lazy {
