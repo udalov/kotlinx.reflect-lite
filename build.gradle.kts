@@ -74,4 +74,13 @@ publishing {
     publications.withType(MavenPublication::class).all {
         signPublicationIfKeyPresent(this)
     }
+
+    establishSignDependencies()
+}
+
+
+fun Project.establishSignDependencies() {
+    tasks.withType<AbstractPublishToMaven>().configureEach {
+        dependsOn(tasks.withType<Sign>())
+    }
 }
