@@ -4,9 +4,8 @@
 
 package kotlinx.reflect.lite.name
 
-import kotlinx.metadata.ClassName
-import kotlinx.metadata.isLocal
-import kotlinx.metadata.isLocalClassName
+import kotlin.metadata.ClassName
+import kotlin.metadata.isLocalClassName
 
 internal typealias Name = String
 

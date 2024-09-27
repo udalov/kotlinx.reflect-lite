@@ -5,7 +5,7 @@
 // Most logic copied from: https://github.com/JetBrains/kotlin/blob/master/core/reflection.jvm/src/kotlin/reflect/jvm/internal/RuntimeTypeMapper.kt
 package kotlinx.reflect.lite.misc
 
-import kotlinx.metadata.jvm.*
+import kotlin.metadata.jvm.*
 import kotlinx.reflect.lite.builtins.*
 import kotlinx.reflect.lite.descriptors.impl.*
 import kotlinx.reflect.lite.name.*

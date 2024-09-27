@@ -4,7 +4,7 @@
 
 package kotlinx.reflect.lite.descriptors
 
-import kotlinx.metadata.*
+import kotlin.metadata.*
 import kotlinx.reflect.lite.*
 import kotlinx.reflect.lite.descriptors.impl.*
 import kotlinx.reflect.lite.descriptors.impl.ClassDescriptorImpl

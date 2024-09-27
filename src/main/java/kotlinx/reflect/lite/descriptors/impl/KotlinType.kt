@@ -4,7 +4,7 @@
 
 package kotlinx.reflect.lite.descriptors.impl
 
-import kotlinx.metadata.*
+import kotlin.metadata.*
 import kotlinx.reflect.lite.KVariance
 import kotlinx.reflect.lite.builtins.*
 import kotlinx.reflect.lite.builtins.KotlinBuiltInsImpl

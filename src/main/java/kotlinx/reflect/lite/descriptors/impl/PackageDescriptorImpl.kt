@@ -4,9 +4,9 @@
 
 package kotlinx.reflect.lite.descriptors.impl
 
-import kotlinx.metadata.*
-import kotlinx.metadata.jvm.*
-import kotlinx.metadata.jvm.KotlinClassMetadata.Companion
+import kotlin.metadata.*
+import kotlin.metadata.jvm.*
+import kotlin.metadata.jvm.KotlinClassMetadata.Companion
 import kotlinx.reflect.lite.descriptors.*
 import kotlinx.reflect.lite.misc.*
 import kotlinx.reflect.lite.name.*
