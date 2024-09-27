@@ -97,6 +97,7 @@ public final class kotlinx/reflect/lite/KParameter$Kind : java/lang/Enum {
 	public static final field EXTENSION_RECEIVER Lkotlinx/reflect/lite/KParameter$Kind;
 	public static final field INSTANCE Lkotlinx/reflect/lite/KParameter$Kind;
 	public static final field VALUE Lkotlinx/reflect/lite/KParameter$Kind;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lkotlinx/reflect/lite/KParameter$Kind;
 	public static fun values ()[Lkotlinx/reflect/lite/KParameter$Kind;
 }
@@ -179,6 +180,7 @@ public final class kotlinx/reflect/lite/KVariance : java/lang/Enum {
 	public static final field IN Lkotlinx/reflect/lite/KVariance;
 	public static final field INVARIANT Lkotlinx/reflect/lite/KVariance;
 	public static final field OUT Lkotlinx/reflect/lite/KVariance;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lkotlinx/reflect/lite/KVariance;
 	public static fun values ()[Lkotlinx/reflect/lite/KVariance;
 }
@@ -188,6 +190,7 @@ public final class kotlinx/reflect/lite/KVisibility : java/lang/Enum {
 	public static final field PRIVATE Lkotlinx/reflect/lite/KVisibility;
 	public static final field PROTECTED Lkotlinx/reflect/lite/KVisibility;
 	public static final field PUBLIC Lkotlinx/reflect/lite/KVisibility;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lkotlinx/reflect/lite/KVisibility;
 	public static fun values ()[Lkotlinx/reflect/lite/KVisibility;
 }

@@ -4,7 +4,7 @@
 
 package kotlinx.reflect.lite.descriptors.impl
 
-import kotlinx.metadata.*
+import kotlin.metadata.*
 import kotlinx.reflect.lite.*
 import kotlinx.reflect.lite.descriptors.*
 import kotlinx.reflect.lite.descriptors.DeclarationDescriptor
@@ -25,7 +25,7 @@ internal class TypeParameterDescriptorImpl(
         get() = kmTypeParam.name
 
     override val isReified: Boolean
-        get() = Flag.TypeParameter.IS_REIFIED(kmTypeParam.flags)
+        get() = kmTypeParam.isReified
 
     override val upperBounds: List<KotlinType>
         get() = kmTypeParam.upperBounds.map { it.toKotlinType(module, typeParameterTable) }

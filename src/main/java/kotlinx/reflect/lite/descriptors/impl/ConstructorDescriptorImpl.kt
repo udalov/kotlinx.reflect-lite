@@ -4,8 +4,8 @@
 
 package kotlinx.reflect.lite.descriptors.impl
 
-import kotlinx.metadata.*
-import kotlinx.metadata.jvm.*
+import kotlin.metadata.*
+import kotlin.metadata.jvm.*
 import kotlinx.reflect.lite.*
 import kotlinx.reflect.lite.calls.*
 import kotlinx.reflect.lite.calls.Caller
@@ -20,17 +20,42 @@ internal class ConstructorDescriptorImpl(
     override val containingClass: ClassDescriptor<*>, // todo they are always the same, remove containing class field
     override val container: ClassBasedDeclarationContainerDescriptor
 ) : AbstractFunctionDescriptor(), ConstructorDescriptor {
-    override val flags: Flags
-        get() = kmCons.flags
 
     override val name: Name
         get() = "<init>"
+
+    override val modality: Modality
+        get() = Modality.FINAL
+
+    override val visibility: KVisibility?
+        get() = kmCons.visibility.toKVisibility()
+
+    override val isInline: Boolean
+        get() = false
+
+    override val isExternal: Boolean
+        get() = false
+
+    override val isOperator: Boolean
+        get() = false
+
+    override val isInfix: Boolean
+        get() = false
+
+    override val isSuspend: Boolean
+        get() = false
 
     override val signature: JvmMethodSignature?
         get() = kmCons.signature
 
     override val isPrimary: Boolean
-        get() = !Flag.Constructor.IS_SECONDARY(flags)
+        get() = !kmCons.isSecondary
+
+    override val isReal: Boolean
+        get() = true
+
+    override val isAnnotationConstructor: Boolean
+        get() = false
 
     override val valueParameters: List<ValueParameterDescriptor>
         get() = kmCons.valueParameters.mapIndexed { index, parameter ->
@@ -78,7 +103,7 @@ internal class JavaConstructorDescriptorImpl(
     override val module: ModuleDescriptor,
     override val containingClass: ClassDescriptor<*>,
     override val container: ClassBasedDeclarationContainerDescriptor
-): ConstructorDescriptor {
+) : ConstructorDescriptor {
     override val name: Name
         get() = "<init>"
 

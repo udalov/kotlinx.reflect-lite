@@ -4,8 +4,9 @@
 
 package kotlinx.reflect.lite.descriptors.impl
 
-import kotlinx.metadata.*
-import kotlinx.metadata.jvm.*
+import kotlin.metadata.*
+import kotlin.metadata.jvm.*
+import kotlinx.reflect.lite.KVisibility
 import kotlinx.reflect.lite.calls.*
 import kotlinx.reflect.lite.calls.Caller
 import kotlinx.reflect.lite.descriptors.*
@@ -20,11 +21,18 @@ internal class PropertyDescriptorImpl(
     override val containingClass: ClassDescriptor<*>?,
     override val container: ClassBasedDeclarationContainerDescriptor
 ) : AbstractCallableDescriptor, PropertyDescriptor {
-    override val flags: Flags
-        get() = kmProperty.flags
-
     override val name: Name
         get() = kmProperty.name
+
+    override val visibility: KVisibility?
+        get() = kmProperty.visibility.toKVisibility()
+
+    override val isFinal: Boolean
+        get() = kmProperty.modality == Modality.FINAL
+    override val isOpen: Boolean
+        get() = kmProperty.modality == Modality.OPEN
+    override val isAbstract: Boolean
+        get() = kmProperty.modality == Modality.ABSTRACT
 
     override val valueParameters: List<ValueParameterDescriptor>
         get() = emptyList()
@@ -39,15 +47,19 @@ internal class PropertyDescriptorImpl(
         get() = kmProperty.returnType.toKotlinType(module, typeParameterTable)
 
     override val isConst: Boolean
-        get() = Flag.Property.IS_CONST(flags)
+        get() = kmProperty.isConst
+
     override val isLateInit: Boolean
-        get() = Flag.Property.IS_LATEINIT(flags)
+        get() = kmProperty.isLateinit
+
     override val isVar: Boolean
-        get() = Flag.Property.IS_VAR(flags)
+        get() = kmProperty.isVar
+
     override val isReal: Boolean
         get() = true
+
     override val isMovedFromInterfaceCompanion: Boolean
-        get() = JvmFlag.Property.IS_MOVED_FROM_INTERFACE_COMPANION(kmProperty.jvmFlags)
+        get() = kmProperty.isMovedFromInterfaceCompanion
 
     override val dispatchReceiverParameter: ReceiverParameterDescriptor?
         get() = containingClass?.thisAsReceiverParameter
@@ -85,12 +97,10 @@ internal class PropertyDescriptorImpl(
         }
     }
 
-    override val getter: PropertyGetterDescriptor? by lazy {
-        if (Flag.Property.HAS_GETTER(flags)) PropertyGetterDescriptorImpl(this) else null
-    }
+    override val getter: PropertyGetterDescriptor? by lazy { PropertyGetterDescriptorImpl(this) }
 
     override val setter: PropertySetterDescriptor? by lazy {
-        if (Flag.Property.HAS_SETTER(flags)) PropertySetterDescriptorImpl(this) else null
+        if (kmProperty.setter != null) PropertySetterDescriptorImpl(this) else null
     }
 
     override val caller: Caller<*> by lazy {
@@ -183,18 +193,34 @@ internal class PropertyGetterDescriptorImpl(
     override val name: Name
         get() = "<get-${property.name}>"
 
+    private val getter = property.kmProperty.getter
+
+    override val isInline: Boolean
+        get() = getter.isInline
+    override val isExternal: Boolean
+        get() = getter.isExternal
+    override val isOperator: Boolean
+        get() = false
+    override val isInfix: Boolean
+        get() = false
+    override val isSuspend: Boolean
+        get() = false
+    override val modality: Modality
+        get() = getter.modality
+
+    override val visibility: KVisibility?
+        get() = property.kmProperty.getter.visibility.toKVisibility()
+
+
     override val signature: JvmMethodSignature?
         get() = property.kmProperty.getterSignature
-
-    override val flags: Flags
-        get() = property.kmProperty.getterFlags
 
     override val valueParameters: List<ValueParameterDescriptor>
         get() = emptyList()
 
     override val member: Method? by lazy {
         property.jvmSignature.getterSignature?.let { signature ->
-            property.container.findMethodBySignature(signature.name, signature.desc)
+            property.container.findMethodBySignature(signature.name, signature.descriptor)
         }
     }
 
@@ -211,21 +237,37 @@ internal class PropertyGetterDescriptorImpl(
 internal class PropertySetterDescriptorImpl(
     override val property: PropertyDescriptorImpl
 ) : PropertyAccessorDescriptorImpl(property), PropertySetterDescriptor {
+
+    private val setter = property.kmProperty.setter!!
+
     override val name: Name
         get() = "<set-${property.name}>"
+
+    override val isInline: Boolean
+        get() = setter.isInline
+    override val isExternal: Boolean
+        get() = setter.isExternal
+    override val isOperator: Boolean
+        get() = false
+    override val isInfix: Boolean
+        get() = false
+    override val isSuspend: Boolean
+        get() = false
+    override val modality: Modality
+        get() = setter.modality
 
     override val signature: JvmMethodSignature?
         get() = property.kmProperty.setterSignature
 
-    override val flags: Flags
-        get() = property.kmProperty.setterFlags
+    override val visibility: KVisibility?
+        get() = property.kmProperty.setter?.visibility?.toKVisibility()
 
     override val valueParameters: List<ValueParameterDescriptor>
         get() = listOf(PropertySetterParameterDescriptor(property.kmProperty.setterParameter, this))
 
     override val member: Method? by lazy {
         property.jvmSignature.setterSignature?.let { signature ->
-            property.container.findMethodBySignature(signature.name, signature.desc)
+            property.container.findMethodBySignature(signature.name, signature.descriptor)
         }
     }
 
@@ -238,6 +280,3 @@ internal class PropertySetterDescriptorImpl(
             CallerImpl.FieldSetter.Static(field, isNotNullProperty())
     }
 }
-
-
-

@@ -5,7 +5,7 @@
 // Most logic copied from: https://github.com/JetBrains/kotlin/blob/master/core/reflection.jvm/src/kotlin/reflect/jvm/internal/RuntimeTypeMapper.kt
 package kotlinx.reflect.lite.misc
 
-import kotlinx.metadata.jvm.*
+import kotlin.metadata.jvm.*
 import kotlinx.reflect.lite.builtins.*
 import kotlinx.reflect.lite.descriptors.impl.*
 import kotlinx.reflect.lite.name.*
@@ -14,18 +14,18 @@ internal sealed class JvmFunctionSignature {
     abstract fun asString(): String
 
     class KotlinFunction(private val signature: JvmMethodSignature) : JvmFunctionSignature() {
-        private val _signature = signature.asString()
+        private val _signature =   signature.toString()
 
         val methodName: String get() = signature.name
-        val methodDesc: String get() = signature.desc
+        val methodDesc: String get() = signature.descriptor
 
         override fun asString(): String = _signature
     }
 
     class KotlinConstructor(private val signature: JvmMethodSignature) : JvmFunctionSignature() {
-        private val _signature = signature.asString()
+        private val _signature =  /* compiled code */ signature.toString()
 
-        val constructorDesc: String get() = signature.desc
+        val constructorDesc: String get() = signature.descriptor
 
         override fun asString(): String = _signature
     }

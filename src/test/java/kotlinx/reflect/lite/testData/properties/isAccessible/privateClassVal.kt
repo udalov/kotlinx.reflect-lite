@@ -22,7 +22,7 @@ fun box(): String {
         p.get(Result())
         return "Fail: private property is accessible by default"
     } catch(e: IllegalAccessException) {
-        assertEquals("class kotlinx.reflect.lite.calls.CallerImpl\$FieldGetter cannot access a member of class tests.properties.privateClassVal.Result with modifiers \"private final\"", e.message)
+        assertEquals("Class kotlinx.reflect.lite.calls.CallerImpl\$FieldGetter can not access a member of class tests.properties.privateClassVal.Result with modifiers \"private final\"", e.message)
     }
 
     p.isAccessible = true
@@ -34,7 +34,7 @@ fun box(): String {
         p.get(Result())
         return "Fail: setAccessible(false) had no effect"
     } catch(e: IllegalAccessException) {
-        assertEquals("class kotlinx.reflect.lite.calls.CallerImpl\$FieldGetter cannot access a member of class tests.properties.privateClassVal.Result with modifiers \"private final\"", e.message)
+        assertEquals("Class kotlinx.reflect.lite.calls.CallerImpl\$FieldGetter can not access a member of class tests.properties.privateClassVal.Result with modifiers \"private final\"", e.message)
     }
 
     return r

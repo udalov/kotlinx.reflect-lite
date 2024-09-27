@@ -4,7 +4,7 @@
 
 package kotlinx.reflect.lite.descriptors.impl
 
-import kotlinx.metadata.*
+import kotlin.metadata.*
 import kotlinx.reflect.lite.KVariance
 import kotlinx.reflect.lite.builtins.*
 import kotlinx.reflect.lite.builtins.KotlinBuiltInsImpl
@@ -61,7 +61,7 @@ internal fun KmType.toKotlinType(module: ModuleDescriptor, typeParameterTable: T
                 variance?.toVariance() ?: KVariance.OUT
             )
         }.toList(),
-        Flag.Type.IS_NULLABLE(flags)
+        isNullable
     )
 }
 

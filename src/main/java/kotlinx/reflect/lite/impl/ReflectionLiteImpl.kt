@@ -4,7 +4,7 @@
 
 package kotlinx.reflect.lite.impl
 
-import kotlinx.metadata.jvm.*
+import kotlin.metadata.jvm.*
 import kotlinx.reflect.lite.*
 import kotlinx.reflect.lite.descriptors.ClassDescriptor
 import kotlinx.reflect.lite.descriptors.PackageDescriptor
@@ -19,8 +19,8 @@ internal object ReflectionLiteImpl {
 
     fun <T : Any> createKotlinDeclarationContainer(jClass: Class<T>): KDeclarationContainer {
         return when (jClass.getMetadataAnnotation()?.kind) {
-            null, KotlinClassHeader.CLASS_KIND -> getOrCreateKotlinClass(jClass)
-            KotlinClassHeader.FILE_FACADE_KIND, KotlinClassHeader.MULTI_FILE_CLASS_PART_KIND -> createKotlinPackage(jClass)
+            null, KotlinClassMetadata.CLASS_KIND -> getOrCreateKotlinClass(jClass)
+            KotlinClassMetadata.FILE_FACADE_KIND, KotlinClassMetadata.MULTI_FILE_CLASS_PART_KIND -> createKotlinPackage(jClass)
             else -> throw KotlinReflectionInternalError("Can not load class metadata for $jClass")
         }
     }
@@ -47,7 +47,7 @@ internal object ReflectionLiteImpl {
                     JavaClassDescriptor(jClass)
                 }
             }
-            KotlinClassHeader.CLASS_KIND -> {
+            KotlinClassMetadata.CLASS_KIND -> {
                 ClassDescriptorImpl(jClass)
             }
             else -> throw KotlinReflectionInternalError("Could not create an instance of KClass from $this, the class file kind equals $kind")
@@ -56,7 +56,7 @@ internal object ReflectionLiteImpl {
     private fun <T: Any> createPackageDescriptor(jClass: Class<T>, kind: Int?): PackageDescriptor<T> =
         when (kind) {
             // we can extract KmPackage only from these kinds of kotlin class files: FILE_FACADE_KIND, MULTI_FILE_CLASS_PART_KIND
-            KotlinClassHeader.FILE_FACADE_KIND, KotlinClassHeader.MULTI_FILE_CLASS_PART_KIND -> PackageDescriptorImpl(jClass)
+            KotlinClassMetadata.FILE_FACADE_KIND, KotlinClassMetadata.MULTI_FILE_CLASS_PART_KIND -> PackageDescriptorImpl(jClass)
             else -> throw KotlinReflectionInternalError("Could not create an instance of KPackage from $jClass, the class file kind equals $kind")
         }
 

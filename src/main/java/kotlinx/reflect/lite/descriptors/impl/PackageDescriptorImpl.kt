@@ -4,8 +4,9 @@
 
 package kotlinx.reflect.lite.descriptors.impl
 
-import kotlinx.metadata.*
-import kotlinx.metadata.jvm.*
+import kotlin.metadata.*
+import kotlin.metadata.jvm.*
+import kotlin.metadata.jvm.KotlinClassMetadata.Companion
 import kotlinx.reflect.lite.descriptors.*
 import kotlinx.reflect.lite.misc.*
 import kotlinx.reflect.lite.name.*
@@ -17,11 +18,11 @@ internal class PackageDescriptorImpl<T : Any?>(
     override val kmPackage: KmPackage
         get() {
             val header = jClass.getAnnotation(Metadata::class.java)?.let {
-                KotlinClassHeader(it.kind, it.metadataVersion, it.data1, it.data2, it.extraString, it.packageName, it.extraInt)
+                Metadata(it.kind, it.metadataVersion, it.data1, it.data2, it.extraString, it.packageName, it.extraInt)
             } ?: error("@Metadata annotation was not found for ${jClass.name} ")
-            return when (val metadata = KotlinClassMetadata.read(header)) {
-                is KotlinClassMetadata.FileFacade -> metadata.toKmPackage()
-                is KotlinClassMetadata.MultiFileClassPart -> metadata.toKmPackage()
+            return when (val metadata =  /* compiled code */ KotlinClassMetadata.readStrict(header)) {
+                is KotlinClassMetadata.FileFacade ->  /* compiled code */ metadata.kmPackage
+                is KotlinClassMetadata.MultiFileClassPart ->  /* compiled code */ metadata.kmPackage
                 else -> error("Can not create PackageDescriptor for metadata of type $metadata")
             }
         }

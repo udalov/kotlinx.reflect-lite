@@ -21,12 +21,9 @@ repositories {
 dependencies {
     implementation("com.google.protobuf:protobuf-java:2.6.1")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
-
-    val kotlinx_metadata_version: String by project
-    implementation("org.jetbrains.kotlinx:kotlinx-metadata-jvm:$kotlinx_metadata_version")
-
+    implementation("org.jetbrains.kotlin:kotlin-metadata-jvm:2.0.20")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("junit:junit:4.13")
+    testImplementation("junit:junit:4.13.1")
     jmh("org.jetbrains.kotlin:kotlin-reflect:1.7.10")
 }
 
@@ -36,13 +33,14 @@ java {
 }
 
 tasks.compileKotlin {
-    kotlinOptions {
-        freeCompilerArgs += listOf("-no-reflect")
+    compilerOptions {
+        freeCompilerArgs.addAll(listOf("-no-reflect"))
     }
 }
 
 kotlin {
     explicitApi()
+    jvmToolchain(8)
 }
 
 kover {

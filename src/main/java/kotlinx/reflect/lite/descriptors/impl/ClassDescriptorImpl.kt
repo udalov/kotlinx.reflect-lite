@@ -4,9 +4,10 @@
 
 package kotlinx.reflect.lite.descriptors.impl
 
-import kotlinx.metadata.*
-import kotlinx.metadata.internal.common.*
-import kotlinx.metadata.jvm.*
+import kotlin.metadata.*
+import kotlin.metadata.internal.common.*
+import kotlin.metadata.jvm.*
+import kotlin.metadata.jvm.KotlinClassMetadata.Companion
 import kotlinx.reflect.lite.*
 import kotlinx.reflect.lite.descriptors.*
 import kotlinx.reflect.lite.impl.*
@@ -14,7 +15,7 @@ import kotlinx.reflect.lite.misc.*
 import kotlinx.reflect.lite.name.*
 import java.lang.reflect.*
 
-internal interface AbstractClassDescriptor<T: Any?> : ClassDescriptor<T> {
+internal interface AbstractClassDescriptor<T : Any?> : ClassDescriptor<T> {
 
     override val classId: ClassId
         get() = RuntimeTypeMapper.mapJvmClassToKotlinClassId(jClass)
@@ -62,18 +63,19 @@ internal class ClassDescriptorImpl<T : Any?>(
         if (builtinClassId != null) {
             val packageName = builtinClassId.packageFqName
             // kotlin.collections -> kotlin/collections/collections.kotlin_builtins
-            val resourcePath = packageName.asString().replace('.', '/') + '/' + packageName.shortName() + ".kotlin_builtins"
+            val resourcePath =
+                packageName.asString().replace('.', '/') + '/' + packageName.shortName() + ".kotlin_builtins"
             val bytes = Unit::class.java.classLoader.getResourceAsStream(resourcePath)?.readBytes()
                 ?: error("No builtins metadata file found: $resourcePath")
-            val packageFragment = KotlinCommonMetadata.read(bytes)?.toKmModuleFragment()
+            val packageFragment = KotlinCommonMetadata.read(bytes)?. /* compiled code */ kmModuleFragment
                 ?: error("Incompatible metadata version: $resourcePath")
             packageFragment.classes.find { it.name == builtinClassId.asClassName() }?.let { return@lazy it }
         }
         val header = jClass.getAnnotation(Metadata::class.java)?.let {
-            KotlinClassHeader(it.kind, it.metadataVersion, it.data1, it.data2, it.extraString, it.packageName, it.extraInt)
+            Metadata(it.kind, it.metadataVersion, it.data1, it.data2, it.extraString, it.packageName, it.extraInt)
         } ?: error("@Metadata annotation was not found for ${jClass.name} ")
-        return@lazy when (val metadata = KotlinClassMetadata.read(header)) {
-            is KotlinClassMetadata.Class -> metadata.toKmClass()
+        return@lazy when (val metadata =  /* compiled code */ KotlinClassMetadata.readStrict(header)) {
+            is KotlinClassMetadata.Class ->  /* compiled code */ metadata.kmClass
             else -> error("Can not create ClassDescriptor for metadata of type $metadata")
         }
     }
@@ -111,7 +113,7 @@ internal class ClassDescriptorImpl<T : Any?>(
     }
 
     override val visibility: KVisibility? by lazy {
-        kmClass.flags.toVisibility()
+        kmClass.visibility.toKVisibility()
     }
 
     override val typeParameterTable: TypeParameterTable by lazy {
@@ -135,32 +137,33 @@ internal class ClassDescriptorImpl<T : Any?>(
     }
 
     override val isInterface: Boolean
-        get() = Flag.Class.IS_INTERFACE(kmClass.flags)
+        get() = kmClass.kind == ClassKind.INTERFACE
     override val isObject: Boolean
-        get() = Flag.Class.IS_OBJECT(kmClass.flags)
+        get() = kmClass.kind == ClassKind.OBJECT
     override val isCompanion: Boolean
-        get() = Flag.Class.IS_COMPANION_OBJECT(kmClass.flags)
+        get() = kmClass.kind == ClassKind.COMPANION_OBJECT
     override val isFinal: Boolean
-        get() = Flag.Common.IS_FINAL(kmClass.flags)
+        get() = kmClass.modality == Modality.FINAL
     override val isOpen: Boolean
-        get() = Flag.Common.IS_OPEN(kmClass.flags)
+        get() = kmClass.modality == Modality.OPEN
     override val isAbstract: Boolean
-        get() = Flag.Common.IS_ABSTRACT(kmClass.flags)
+        get() = kmClass.modality == Modality.ABSTRACT
     override val isSealed: Boolean
-        get() = Flag.Common.IS_SEALED(kmClass.flags)
+        get() = kmClass.modality == Modality.SEALED
+
     override val isData: Boolean
-        get() = Flag.Class.IS_DATA(kmClass.flags)
+        get() = kmClass.isData
     override val isInner: Boolean
-        get() = Flag.Class.IS_INNER(kmClass.flags)
+        get() = kmClass.isInner
     override val isFun: Boolean
-        get() = Flag.Class.IS_FUN(kmClass.flags)
+        get() = kmClass.isFunInterface
     override val isValue: Boolean
-        get() = Flag.Class.IS_VALUE(kmClass.flags)
+        get() = kmClass.isValue
 }
 
 internal class JavaClassDescriptor<T : Any?>(
     override val jClass: Class<T>
-): AbstractClassDescriptor<T>, ClassBasedDeclarationContainerDescriptorImpl(jClass) {
+) : AbstractClassDescriptor<T>, ClassBasedDeclarationContainerDescriptorImpl(jClass) {
 
     override val name: Name by lazy {
         jClass.simpleName
@@ -171,7 +174,11 @@ internal class JavaClassDescriptor<T : Any?>(
     }
 
     override val nestedClasses: List<ClassDescriptor<*>> by lazy {
-        jClass.declaredClasses.mapNotNull { module.findClass<Any?>(classId.createNestedClassId(it.simpleName).asClassName()) }
+        jClass.declaredClasses.mapNotNull {
+            module.findClass<Any?>(
+                classId.createNestedClassId(it.simpleName).asClassName()
+            )
+        }
     }
 
     override val sealedSubclasses: List<ClassDescriptor<T>>

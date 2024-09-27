@@ -4,7 +4,7 @@
 
 package kotlinx.reflect.lite.impl
 
-import kotlinx.metadata.jvm.*
+import kotlin.metadata.jvm.*
 import kotlinx.reflect.lite.descriptors.*
 import kotlinx.reflect.lite.KVisibility
 import kotlinx.reflect.lite.descriptors.impl.*

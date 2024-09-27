@@ -4,8 +4,8 @@
 
 package kotlinx.reflect.lite.descriptors.impl
 
-import kotlinx.metadata.*
-import kotlinx.metadata.jvm.*
+import kotlin.metadata.*
+import kotlin.metadata.jvm.*
 import kotlinx.reflect.lite.*
 import kotlinx.reflect.lite.calls.*
 import kotlinx.reflect.lite.descriptors.*
@@ -15,16 +15,18 @@ import java.lang.reflect.*
 import kotlinx.reflect.lite.misc.JvmFunctionSignature
 
 internal abstract class AbstractFunctionDescriptor : AbstractCallableDescriptor, FunctionDescriptor {
-    override val isInline: Boolean
-        get() = Flag.Function.IS_INLINE(flags)
-    override val isExternal: Boolean
-        get() = Flag.Function.IS_EXTERNAL(flags)
-    override val isOperator: Boolean
-        get() = Flag.Function.IS_OPERATOR(flags)
-    override val isInfix: Boolean
-        get() = Flag.Function.IS_INFIX(flags)
-    override val isSuspend: Boolean
-        get() = Flag.Function.IS_SUSPEND(flags)
+
+    abstract val modality: Modality
+
+    override val isFinal: Boolean
+        get() = modality == Modality.FINAL
+
+    override val isOpen: Boolean
+        get() = modality == Modality.OPEN
+
+    override val isAbstract: Boolean
+        get() = modality == Modality.ABSTRACT
+
     override val isReal: Boolean
         get() = true
 
@@ -96,11 +98,29 @@ internal class FunctionDescriptorImpl(
     override val container: ClassBasedDeclarationContainerDescriptor
 ) : AbstractFunctionDescriptor() {
 
-    override val flags: Flags
-        get() = kmFunction.flags
-
     override val name: Name
         get() = kmFunction.name
+
+    override val modality: Modality
+        get() = kmFunction.modality
+
+    override val visibility: KVisibility?
+        get() = kmFunction.visibility.toKVisibility()
+
+    override val isInline: Boolean
+        get() = kmFunction.isInline
+
+    override val isExternal: Boolean
+        get() = kmFunction.isExternal
+
+    override val isOperator: Boolean
+        get() = kmFunction.isOperator
+
+    override val isInfix: Boolean
+        get() = kmFunction.isInfix
+
+    override val isSuspend: Boolean
+        get() = kmFunction.isSuspend
 
     override val signature: JvmMethodSignature? by lazy { kmFunction.signature }
 

@@ -28,7 +28,7 @@ fun box(): String {
         getBar.call(A())
     } catch (e: Throwable) {
         assertEquals(
-            "class kotlinx.reflect.lite.calls.CallerImpl\$FieldGetter cannot access a member of class tests.call.accessPrivateProperties.A with modifiers \"private\"",
+            "Class kotlinx.reflect.lite.calls.CallerImpl\$FieldGetter can not access a member of class tests.call.accessPrivateProperties.A with modifiers \"private\"",
             e.message
         )
     }
@@ -43,7 +43,7 @@ fun box(): String {
         kotlinReflectGetBar.call(A())
     } catch (e: Throwable) {
         assertEquals(
-            "java.lang.IllegalAccessException: class kotlin.reflect.jvm.internal.calls.CallerImpl\$FieldGetter cannot access a member of class tests.call.accessPrivateProperties.A with modifiers \"private\"",
+            "java.lang.IllegalAccessException: Class kotlin.reflect.jvm.internal.calls.CallerImpl\$FieldGetter can not access a member of class tests.call.accessPrivateProperties.A with modifiers \"private\"",
             e.message
         )
     }
