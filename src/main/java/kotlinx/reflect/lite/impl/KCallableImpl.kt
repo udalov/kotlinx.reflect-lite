@@ -9,7 +9,6 @@ import kotlinx.reflect.lite.descriptors.*
 import kotlinx.reflect.lite.descriptors.impl.*
 import kotlinx.reflect.lite.jvm.*
 import java.lang.reflect.*
-import java.util.ArrayList
 import kotlin.coroutines.*
 
 internal abstract class KCallableImpl<out R>: KCallable<R> {
@@ -63,30 +62,28 @@ internal abstract class KCallableImpl<out R>: KCallable<R> {
         return callDefaultMethod(args, null)
     }
 
-    // Logic from: https://github.com/JetBrains/kotlin/blob/ea836fd46a1fef07d77c96f9d7e8d7807f793453/core/reflection.jvm/src/kotlin/reflect/jvm/internal/KCallableImpl.kt#L116
+    // Base logic from: https://github.com/JetBrains/kotlin/blob/ea836fd46a1fef07d77c96f9d7e8d7807f793453/core/reflection.jvm/src/kotlin/reflect/jvm/internal/KCallableImpl.kt#L116
     private fun callDefaultMethod(args: Map<KParameter, Any?>, continuationArgument: Continuation<*>?): R {
         val parameters = parameters
-        // TODO here we can avoid extra arguments copy by allocating an array of precise size if
-        // varargs are not present and win some performance
-        val arguments = ArrayList<Any?>(parameters.size)
-        var mask = 0
-        val masks = ArrayList<Int>(1)
-        var index = 0
+        val arguments = arrayOfNulls<Any?>(parameters.size + (if (isSuspend) 1 else 0)).apply {
+            if (isSuspend) {
+                // continuationArgument is tail of arguments
+                this[parameters.size] = continuationArgument
+            }
+        }
+        val masks = IntArray((parameters.size + Integer.SIZE - 1) / Integer.SIZE)
+        var valueParameterIndex = 0
         var anyOptional = false
 
         for (parameter in parameters) {
-            if (index != 0 && index % Integer.SIZE == 0) {
-                masks.add(mask)
-                mask = 0
-            }
-
             when {
                 args.containsKey(parameter) -> {
-                    arguments.add(args[parameter])
+                    arguments[parameter.index] = args[parameter]
                 }
                 parameter.isOptional -> {
-                    arguments.add(defaultPrimitiveValue(parameter.type.javaType))
-                    mask = mask or (1 shl (index % Integer.SIZE))
+                    arguments[parameter.index] = defaultPrimitiveValue(parameter.type.javaType)
+                    val maskIndex = valueParameterIndex / Integer.SIZE
+                    masks[maskIndex] = masks[maskIndex] or (1 shl (valueParameterIndex % Integer.SIZE))
                     anyOptional = true
                 }
                 parameter.isVararg -> {
@@ -98,29 +95,28 @@ internal abstract class KCallableImpl<out R>: KCallable<R> {
             }
 
             if (parameter.kind == KParameter.Kind.VALUE) {
-                index++
+                valueParameterIndex++
             }
         }
 
-        if (continuationArgument != null) {
-            arguments.add(continuationArgument)
-        }
-
         if (!anyOptional) {
-            return call(*arguments.toTypedArray())
+            // The process is the same as call,
+            // but it is called directly to avoid the processing cost of spread operator.
+            @Suppress("UNCHECKED_CAST")
+            return descriptor.caller.call(arguments) as R
         }
-
-        masks.add(mask)
 
         val caller = descriptor.defaultCaller ?: throw KotlinReflectionInternalError("This callable does not support a default call: $descriptor")
 
-        arguments.addAll(masks)
-
-        // DefaultConstructorMarker or MethodHandle
-        arguments.add(null)
+        // +1 is argument for DefaultConstructorMarker or MethodHandle
+        val mergedArgs = arrayOfNulls<Any?>(arguments.size + masks.size + 1)
+        System.arraycopy(arguments, 0, mergedArgs, 0, arguments.size)
+        for (i in masks.indices) {
+            mergedArgs[i + arguments.size] = masks[i]
+        }
 
         @Suppress("UNCHECKED_CAST")
-        return caller.call(arguments.toTypedArray()) as R
+        return caller.call(mergedArgs) as R
     }
 
     private fun extractContinuationArgument(): Type? {
